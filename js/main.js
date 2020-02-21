@@ -3,18 +3,77 @@ let headerInput = document.querySelector('.header-input'),          // Поле 
     headerButton = document.querySelector('.header-button'),        // Плюс
     toDo = document.querySelector('#todo'),                         // Список невыполненных дел
     completed = document.querySelector('#completed'),               // Список выполненных дел
+
     toDoItem = document.querySelectorAll('.todo-item'),             // Элемент списка, дело
-    toDoRemove = document.querySelectorAll('.todo-remove'),            // Корзина
-    toDoComplete = document.querySelectorAll('.todo-complete'),        // Галочка
+    toDoRemove = document.querySelectorAll('.todo-remove'),         // Корзина
+
+    toDoComplete = toDo.querySelectorAll('.todo-complete'),        // Галочка верхний список
+    toDoComppleteDone = completed.querySelectorAll('.todo-complete'); // Галочка Нижний список
     toDoButtons = document.querySelector('.todo-buttons');          // Блок с кнопками
 
+///// func
+
+let letsDoThis = function(event){
+    event.preventDefault();
+    if (headerInput.value.trim() !== ''){
+        headerButton.disabled = false;
+        let newElem = document.createElement('li');
+        newElem.innerHTML = headerInput.value + 
+        "<div class='todo-buttons'>" +
+            "<button class='todo-remove'></button>" +
+            "<button class='todo-complete'></button>" +
+        "</div>";
+        newElem.className = 'todo-item';
+        toDo.appendChild(newElem);
+        headerInput.value = '';
+        let deleteBtn = newElem.querySelector('.todo-remove');
+        deleteBtn.addEventListener('click', deleteItem);
+        let doneElem = newElem.querySelector('.todo-complete');
+        doneElem.addEventListener('click', done);
+    }
+};
+let comeBack = function(){
+    toDo.appendChild(this.parentNode.parentNode);
+    this.removeEventListener('click', comeBack);
+    this.addEventListener('click', this.done); 
+};
+let deleteItem = function(){
+    this.parentNode.parentNode.remove();
+    console.log('Удаляю дело');
+};
+let done = function(){
+    completed.appendChild(this.parentNode.parentNode);
+    this.removeEventListener('click', done);
+    this.addEventListener('click', this.comeback);
+    console.log('Дело сделано');
+};
+let eventsListeners = function(){
+    headerButton.addEventListener('click', letsDoThis);
+    //let _this = this;
+    
+    toDoRemove.forEach(function(item) {
+        item.addEventListener('click', this.deleteItem);
+    }); 
+    
+    toDoComplete.forEach(function(item){    
+        item.addEventListener('click', this.done);
+    
+    });
+    toDoComppleteDone.forEach(function(item){    
+        item.addEventListener('click', this.comeBack);
+    
+    });
+};
+
+eventsListeners();
 
 
+/*
 let obj = {
     letsDoThis(event){
         event.preventDefault();
         
-        if (headerInput.value !== ''){
+        if (headerInput.value.trim() !== ''){
             headerButton.disabled = false;
             let newElem = document.createElement('li');
             newElem.innerHTML = headerInput.value + 
@@ -33,8 +92,11 @@ let obj = {
         }
         
     },
-    comeBack(){
+    comeBack(item){
         toDo.appendChild(this.parentNode.parentNode);
+        this.removeEventListener('click', obj.comeBack);
+        this.addEventListener('click', obj.done);
+        
     },
     
     
@@ -45,8 +107,8 @@ let obj = {
     },
     done(){
         completed.appendChild(this.parentNode.parentNode);
-        let complElem = completed.querySelector('todo-complete');
-        complElem.addEventListener('click', this.comeBack.bind(this));
+        this.removeEventListener('click', obj.done);
+        this.addEventListener('click', obj.comeback);
         console.log('Дело сделано');
     },
     eventsListeners(){
@@ -59,30 +121,23 @@ let obj = {
         }.bind(this)); 
         
         toDoComplete.forEach(function(item){    
-            item.addEventListener('click', _this.done);
-            
+            item.addEventListener('click', obj.done);
+        
         }.bind(this));
-
+        toDoComppleteDone.forEach(function(item){    
+            item.addEventListener('click', _this.comeBack);
+        
+        }.bind(this));
     }
 };
 
-obj.eventsListeners();
+obj.eventsListeners(); */
 
-/*    let newElement = document.createElement('li');
-        newElement.textContent = headerInput.value;
-        newElement.className = 'todo-item';
-        toDo.appendChild(newElement);
-        headerInput.value = '';
 
-        newDivElem = document.createElement('div');
-        newDivElem.className = 'todo-buttons';
-        newElement.appendChild(newDivElem);
 
-        newElemRemove = document.createElement('button');
-        newElemRemove.className = 'todo-remove';
-        newDivElem.appendChild(newElemRemove);
 
-        newElemComp = document.createElement('button');
-        newElemComp.className = 'todo-complete';
-        newDivElem.appendChild(newElemComp);
-        console.log('Добавляю дело');   */
+
+
+
+
+
