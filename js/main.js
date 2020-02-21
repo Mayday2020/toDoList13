@@ -8,6 +8,8 @@ let headerInput = document.querySelector('.header-input'),          // Поле 
     toDoComplete = document.querySelectorAll('.todo-complete'),        // Галочка
     toDoButtons = document.querySelector('.todo-buttons');          // Блок с кнопками
 
+
+
 let obj = {
     letsDoThis(event){
         event.preventDefault();
@@ -20,7 +22,9 @@ let obj = {
         newElem.className = 'todo-item';
         toDo.appendChild(newElem);
         headerInput.value = '';
-        //   toDoRemove = document.querySelectorAll('.todo-remove');            // Корзина
+        
+           console.log(this); 
+                
         //   toDoComplete = document.querySelectorAll('.todo-complete');        // Галочка
 
 
@@ -42,12 +46,12 @@ let obj = {
         newElemComp.className = 'todo-complete';
         newDivElem.appendChild(newElemComp);
         console.log('Добавляю дело');   */
+        let deleteBtn = newElem.querySelector('.todo-remove');
     },
     deleteItem(item){
         this.parentNode.parentNode.remove();
         console.log('Удаляю дело');
-        //  toDoRemove = document.querySelectorAll('.todo-remove');            // Корзина
-        //  toDoComplete = document.querySelectorAll('.todo-complete');
+        
     },
     done(){
         completed.appendChild(this.parentNode.parentNode);  
@@ -55,13 +59,18 @@ let obj = {
     },
     eventsListeners(){
         headerButton.addEventListener('click', this.letsDoThis);
-        const _this = this;
+        var _this = this;
+        
+        
         toDoRemove.forEach(function(item) {
             item.addEventListener('click', _this.deleteItem);
-            console.log(_this);
+            
         }); 
-         
+        deleteBtn.forEach(function(item) {
+            item.addEventListener('click', _this.deleteItem);
+        }).bind(this);
         toDoComplete[0].addEventListener('click', this.done);
     },
 };
+
 obj.eventsListeners();
