@@ -1,138 +1,79 @@
 //'use strict';
-let headerInput = document.querySelector('.header-input'),          // Поле ввода
-    headerButton = document.querySelector('.header-button'),        // Плюс
-    toDo = document.querySelector('#todo'),                         // Список невыполненных дел
-    completed = document.querySelector('#completed'),               // Список выполненных дел
+// получаем элементы со страницы
+const input = document.querySelector('.header-input'),              // поле ввода элемента
+      btnAdd = document.getElementById('add'),                      // кнопка Добавить дело в верх.список
+      toDoList = document.getElementById('todo'),                   // верх.список дел
+      completeList = document.getElementById('completed'),          // нижн.список дел              
+      btnDelete = document.querySelectorAll('.todo-remove'),        // кнопка Удалить
+      toDoKey = 'toDo',                                             // ключ верх.списка в LS
+      completedKey = 'completed';                                   // ключ нижн.списка в LS
+let   toDoArr = localStorage.getItem(toDoKey) || [],                // массив верх.списка
+      completedArr = localStorage.getItem(completedKey) || [];      // массив нижн.списка
 
-    toDoItem = document.querySelectorAll('.todo-item'),             // Элемент списка, дело
-    toDoRemove = document.querySelectorAll('.todo-remove'),         // Корзина
-
-    toDoComplete = toDo.querySelectorAll('.todo-complete'),        // Галочка верхний список
-    toDoComppleteDone = completed.querySelectorAll('.todo-complete'); // Галочка Нижний список
-    toDoButtons = document.querySelector('.todo-buttons');          // Блок с кнопками
-
-///// func
-
-let letsDoThis = function(event){
+    // перевод строк в массив верх.списка
+if (typeof(toDoArr) === 'string') {
+    toDoArr = toDoArr.split(',');
+}
+    // перевод строк в массив нижн.списка
+if (typeof(completedArr) === 'string') {
+    completedArr = completedArr.split(',');
+}
+    //добавление нового элемента в верх.список
+const addElem = (text, list, anotherList) => {
+    let newItem = document.createElement('li');
+    newItem.classList = 'todo-item';
+    newItem.textContent = text;
+    newItem.innerHTML += '<div class="todo-buttons">' +
+                            '<button class="todo-remove"></button>' +
+                            '<button class="todo-complete"></button>' +
+                            '</div>';
+    let BtnDo = newItem.querySelector('.todo-complete');
+    list.appendChild(newItem);
+    newItem.querySelector('.todo-remove').addEventListener('click', (event) =>{
+        event.target.parentNode.parentNode.remove();
+        checkLS();
+    });
+    BtnDo.addEventListener('click', function (event) {
+        moveElem(list, anotherList, this);
+    });
+    checkLS();
+};
+    // перенос дела в нижн.список
+const moveElem = (fromList, toList, elem) => {
+    toList.appendChild(elem.parentNode.parentNode);
+    elem.removeEventListener('click', (event) => moveElem(fromList, toList, elem));
+    elem.addEventListener('click', (event) => moveElem(toList, fromList, elem));
+    checkLS();
+};
+    // добавляем в LS
+const checkLS = () => {
+    let items = [];
+    toDoList.querySelectorAll('li').forEach(item => items.push(item.textContent.trim()));
+    localStorage.setItem(toDoKey, items);
+    items = [];
+    completeList.querySelectorAll('li').forEach(item => items.push(item.textContent.trim()));
+    localStorage.setItem(completedKey, items);
+};   
+    // проверка поля ввода и запуск addElem
+btnAdd.addEventListener('click', (event) => {
     event.preventDefault();
-    if (headerInput.value.trim() !== ''){
-        headerButton.disabled = false;
-        let newElem = document.createElement('li');
-        newElem.innerHTML = headerInput.value + 
-        "<div class='todo-buttons'>" +
-            "<button class='todo-remove'></button>" +
-            "<button class='todo-complete'></button>" +
-        "</div>";
-        newElem.className = 'todo-item';
-        toDo.appendChild(newElem);
-        headerInput.value = '';
-        let deleteBtn = newElem.querySelector('.todo-remove');
-        deleteBtn.addEventListener('click', deleteItem);
-        let doneElem = newElem.querySelector('.todo-complete');
-        doneElem.addEventListener('click', done);
+    let value = input.value.trim();
+    input.value = '';
+    if (value !== ''){
+        addElem(value, toDoList, completeList)
     }
-};
-let comeBack = function(){
-    toDo.appendChild(this.parentNode.parentNode);
-    this.removeEventListener('click', comeBack);
-    this.addEventListener('click', this.done); 
-};
-let deleteItem = function(){
-    this.parentNode.parentNode.remove();
-    console.log('Удаляю дело');
-};
-let done = function(){
-    completed.appendChild(this.parentNode.parentNode);
-    this.removeEventListener('click', done);
-    this.addEventListener('click', this.comeback);
-    console.log('Дело сделано');
-};
-let eventsListeners = function(){
-    headerButton.addEventListener('click', letsDoThis);
-    //let _this = this;
-    
-    toDoRemove.forEach(function(item) {
-        item.addEventListener('click', this.deleteItem);
-    }); 
-    
-    toDoComplete.forEach(function(item){    
-        item.addEventListener('click', this.done);
-    
-    });
-    toDoComppleteDone.forEach(function(item){    
-        item.addEventListener('click', this.comeBack);
-    
-    });
-};
-
-eventsListeners();
-
-
-/*
-let obj = {
-    letsDoThis(event){
-        event.preventDefault();
-        
-        if (headerInput.value.trim() !== ''){
-            headerButton.disabled = false;
-            let newElem = document.createElement('li');
-            newElem.innerHTML = headerInput.value + 
-            "<div class='todo-buttons'>" +
-                "<button class='todo-remove'></button>" +
-                "<button class='todo-complete'></button>" +
-            "</div>";
-            newElem.className = 'todo-item';
-            toDo.appendChild(newElem);
-            headerInput.value = '';
-            
-            let deleteBtn = newElem.querySelector('.todo-remove');
-            deleteBtn.addEventListener('click', this.deleteItem);
-            let doneElem = newElem.querySelector('.todo-complete');
-            doneElem.addEventListener('click', this.done);
-        }
-        
-    },
-    comeBack(item){
-        toDo.appendChild(this.parentNode.parentNode);
-        this.removeEventListener('click', obj.comeBack);
-        this.addEventListener('click', obj.done);
-        
-    },
-    
-    
-    deleteItem(){
-        this.parentNode.parentNode.remove();
-        console.log('Удаляю дело');
-        
-    },
-    done(){
-        completed.appendChild(this.parentNode.parentNode);
-        this.removeEventListener('click', obj.done);
-        this.addEventListener('click', obj.comeback);
-        console.log('Дело сделано');
-    },
-    eventsListeners(){
-        headerButton.addEventListener('click', this.letsDoThis.bind(this));
-        let _this = this;
-        
-
-        toDoRemove.forEach(function(item) {
-            item.addEventListener('click', _this.deleteItem);
-        }.bind(this)); 
-        
-        toDoComplete.forEach(function(item){    
-            item.addEventListener('click', obj.done);
-        
-        }.bind(this));
-        toDoComppleteDone.forEach(function(item){    
-            item.addEventListener('click', _this.comeBack);
-        
-        }.bind(this));
-    }
-};
-
-obj.eventsListeners(); */
-
+});
+    // удаляем элемент
+btnDelete.forEach (item => item.addEventListener('click', (event) => {
+    event.target.parentNode.parentNode.remove();
+    checkLS();
+}));
+    // события существующим эдементам
+toDoList.querySelectorAll('.todo-complete').forEach(item => item.addEventListener('click', (event) => moveElem(toDoList, completeList, item)));
+completeList.querySelectorAll('.todo-complete').forEach(item => item.addEventListener('click', (event) => moveElem(completeList, toDoList, item)));
+    // получаем элементы с LS 
+toDoArr.forEach(item => addElem(item, toDoList, completeList));
+completedArr.forEach(item => addElem(item, completeList, toDoList))
 
 
 
